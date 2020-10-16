@@ -13,9 +13,6 @@ class Conv:
         # initializte weights and bias
         self.weights = np.random.random_sample(np.concatenate(([self.num_kernels], self.convolution_shape)))
         self.bias = np.random.rand(self.num_kernels)
-
-        self.optimizer_weights = None
-        self.optimizer_bias = None
         self.input_shape = []
         self.input_pad = []
         self.gradient_weight = np.zeros(np.concatenate(([self.num_kernels], self.convolution_shape)))
@@ -23,8 +20,7 @@ class Conv:
 
     def forward(self, input_tensor):
         # returns the input tensor for the next layer.
-        # if self.oned:
-        #     input_tensor = np.expand_dims(input_tensor, axis=2)
+
 
         self.input_shape = input_tensor.shape  # (b, c, y, x)
         # zero-padding, p = (f-1)/2
@@ -51,19 +47,11 @@ class Conv:
         # stride
         output_tensor = output_tensor[:, :, 0:input_tensor.shape[2]:self.stride_shape[0],
                         0:input_tensor.shape[3]:self.stride_shape[1]]
-
-        # if self.oned:
-        #     output_tensor = np.squeeze(output_tensor, axis=2)
-
         return output_tensor
 
     def backward(self, error_tensor):
         # updates the parameters using the optimizer and returns the error tensor for the next layer
         # gradient with respect to layers
-
-        # if self.oned:
-        #     error_tensor = np.expand_dims(error_tensor, axis=2)
-        # error tensor = (b, n ,y, x)
         # resize kernels
         num_kernels_b = self.convolution_shape[0]
         kernels_b = np.zeros(
@@ -89,7 +77,6 @@ class Conv:
                                                            mode='valid')  # shape
 
         # gradient with respect to weights
-        # new_kernel = convolution(self.input_pad,error_tensor)
         self.gradient_weight = np.zeros(np.concatenate(([self.num_kernels], self.convolution_shape)))
         # for b in range(self.input_shape[0]):
         for n in range(self.num_kernels):
@@ -100,15 +87,9 @@ class Conv:
         # gradient with respect to bias
         self.gradient_bias = np.sum(np.sum(np.sum(error_tensor, axis=3), axis=2), axis=0)
 
-        if self.optimizer_weights and self.optimizer_bias:
-            self.weights = self.optimizer_weights.calculate_update(self.weights, self.gradient_weight)
-            self.bias = self.optimizer_bias.calculate_update(self.bias, self.gradient_bias)
-        else:
-            self.weights -= 0.01 * self.gradient_weight
-            self.bias -= 0.01 * self.gradient_bias
-        # if self.oned:
-        #     output = np.squeeze(output, axis=2)
-
+        self.weights -= 0.01 * self.gradient_weight
+        self.bias -= 0.01 * self.gradient_bias
+  
         return output
 
     def get_gradient_weights(self):
@@ -118,22 +99,4 @@ class Conv:
     def get_gradient_bias(self):
         # return the gradient with respect to the bias
         return self.gradient_bias
-
-    def set_optimizer(self, optimizer):
-        # providing the layer with a deep copy of the optimizer
-        self.optimizer_weights = copy.deepcopy(optimizer)
-        self.optimizer_bias = copy.deepcopy(optimizer)
-
-    def initialize(self, weights_initializer, bias_initializer):
-        self.weights = weights_initializer.initialize(self.weights.shape,
-                                                      self.convolution_shape[0] * self.convolution_shape[1] *
-                                                      self.convolution_shape[2],
-                                                      self.num_kernels * self.convolution_shape[1] *
-                                                      self.convolution_shape[2])
-        self.bias = bias_initializer.initialize(self.bias.shape,
-                                                self.convolution_shape[0] * self.convolution_shape[1] *
-                                                self.convolution_shape[2],
-                                                self.num_kernels * self.convolution_shape[1] * self.convolution_shape[
-                                                    2])
-
 
