@@ -26,25 +26,12 @@ class Dataset:
         self.transform = transform
 
     def __len__(self):
-        dir_dogs = self.root_dir + '/dogs'
-        dir_cats = self.root_dir + '/cats'
-        # TODO: change number of images
-        # return len(os.listdir(dir_dogs)) + len(os.listdir(dir_cats))
-        return 100
+        return len(os.listdir(dir)
+
 
     def __getitem__(self, index):
-        start = 0
-        if not self.train and not self.test:
-            start += 2000
-        if self.test:
-            start += 2500
-        i = np.random.randint(0, 2)
-        if i == 0:
-            img_name = self.root_dir + '/dogs/dog.' + str(index // 2 + start) + '.jpg'
-            label = 0
-        else:
-            img_name = self.root_dir + '/cats/cat.' + str(index // 2 + start) + '.jpg'
-            label = 1
+        img_name = self.root_dir + + str(index) + '.jpg'
+        label = index
         image = Image.open(img_name)
         if self.transform:
             image = self.transform(image)
@@ -56,7 +43,7 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=4, kernel_size=3, stride=1, padding=1)
         self.fc1 = nn.Linear(784,256) #4096
         self.fc2 = nn.Linear(256,10)
 
@@ -77,7 +64,7 @@ class Net(nn.Module):
 
 train_loader = torch.utils.data.DataLoader(
     dataset = Dataset(
-        root_dir=r'D:\Subjects\PycharmProjects\Img\data\dogs_small\train',
+        root_dir=r'.\train',
         train=True,
         test=False,
         transform=transforms.Compose([transforms.Resize((64,64)),
@@ -92,7 +79,7 @@ train_loader = torch.utils.data.DataLoader(
 
 test_loader = torch.utils.data.DataLoader(
     dataset = Dataset(
-        root_dir=r'D:\Subjects\PycharmProjects\Img\data\dogs_small\test',
+        root_dir=r'.\test',
         train=False,
         test=True,
         transform=transforms.Compose([transforms.Resize((64,64)),
@@ -103,54 +90,12 @@ test_loader = torch.utils.data.DataLoader(
     num_workers=4
 )
 
-def load_mnist(batch_size):
-    data_dir = r"D:\Subjects\PycharmProjects\Img\data\FashionMNIST"
-
-    # Number of classes in the dataset
-    num_classes = 10
-    # Use standard FashionMNIST dataset
-    train_set = torchvision.datasets.FashionMNIST(
-        root=data_dir,
-        train=True,
-        download=False, #transforms.Resize(32),
-        transform=transforms.Compose([
-                                      transforms.ToTensor()
-                                      ])
-    )
-    valid_set = torchvision.datasets.FashionMNIST(
-        root=data_dir,
-        train=False,
-        download=False, #transforms.Resize(32),
-        transform=transforms.Compose([
-                                      transforms.ToTensor()])
-    )
-    test_set = torchvision.datasets.FashionMNIST(
-        root=data_dir,
-        train=False,
-        download=False, #transforms.Resize(32),
-        transform=transforms.Compose([
-                                      transforms.ToTensor()])
-    )
-    train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size,
-                                               shuffle=True)
-    valid_loader = torch.utils.data.DataLoader(valid_set, batch_size=batch_size,
-                                              shuffle=True)
-    test_loader = torch.utils.data.DataLoader(test_set, batch_size=batch_size,
-                                              shuffle=False)
-    # Create training and validation dataloaders
-    dataloaders_dict = {'train': train_loader,
-                        'val': valid_loader,
-                        'test': test_loader}
-
-    return dataloaders_dict
-
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 net = Net().to(device)
 optimizer = optim.SGD(net.parameters(), lr=0.01)
-dataloaders = load_mnist(batch_size=10)
-# dataloaders = {'train': train_loader,
-#                 'test': test_loader}
+dataloaders = {'train': train_loader,
+                 'test': test_loader}
 
 def train(epoch):
     net.train()
