@@ -15,3 +15,4 @@ All code can run without problem, but due to numerical unstability loss value mi
 # Usage
 To add layers to neural network and train it: `python3 main.py`
 
+More details: [深度学习（五）上 Python徒手实现CNN](https://www.jianshu.com/p/7fedf619d315)
