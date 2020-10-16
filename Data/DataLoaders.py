@@ -19,25 +19,12 @@ class Dataset:
         self.transform = transform
 
     def __len__(self):
-        dir_dogs = self.root_dir + '/dogs'
-        dir_cats = self.root_dir + '/cats'
-        # TODO: change number of images
-        # return len(os.listdir(dir_dogs)) + len(os.listdir(dir_cats))
-        return 100
-
+        return len(os.listdir(dir))
+    
     def __getitem__(self, index):
-        start = 0
-        if not self.train and not self.test:
-            start += 2000
-        if self.test:
-            start += 2500
-        i = np.random.randint(0, 2)
-        if i == 0:
-            img_name = self.root_dir + '/dogs/dog.' + str(index // 2 + start) + '.jpg'
-            label = 0
-        else:
-            img_name = self.root_dir + '/cats/cat.' + str(index // 2 + start) + '.jpg'
-            label = 1
+        img_name = self.root_dir + '' + '.jpg'
+        label = index
+        
         image = Image.open(img_name)
         if self.transform:
             image = image.resize((64,64))
@@ -45,19 +32,7 @@ class Dataset:
         return image, label
 
     def normalize(self, arr):
-        """
-        Linear normalization
-        http://en.wikipedia.org/wiki/Normalization_%28image_processing%29
-        """
-        arr = np.array(arr).astype('float')
-        # Do not touch the alpha channel
-        for i in range(3):
-            minval = arr[..., i].min()
-            maxval = arr[..., i].max()
-            if minval != maxval:
-                # arr[..., i] -= minval
-                # arr[..., i] *= (255.0 / (maxval - minval))
-                arr[..., i] /= 255.0
+        arr[..., i] /= 255.0
         # arr = Image.fromarray(arr.astype('uint8'))
         return arr
 
@@ -88,6 +63,3 @@ class DataGenerator:
             images = np.array(images)
             labels = np.array(labels)
             yield images,labels
-
-    def forward(self):
-        return next(self.batch_generator())
