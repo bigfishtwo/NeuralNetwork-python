@@ -5,7 +5,6 @@ class Flatten:
 
     def forward(self,input_tensor):
         # reshape and return input_tensor
-        # input_tensor = input_tensor.reshape(-1)
         self.input_shape = input_tensor.shape[1:]
         input_tensor = input_tensor.reshape(input_tensor.shape[0], np.prod(self.input_shape))
         return input_tensor
