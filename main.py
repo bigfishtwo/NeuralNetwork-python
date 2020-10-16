@@ -15,9 +15,7 @@ if __name__=='__main__':
     net = NeuralNetwork(categories,batch_size)
 
     net.loss_layer = Softmax.Softmax()  
-    net.optimizer = Optimizers.Sgd(learning_rate)
     conv1 = Conv.Conv(stride_shape=(1, 1), conv_shape=(1,3,3),num_kernels=4)
-    conv1.set_optimizer(copy.deepcopy(net.optimizer))
     pool = Pooling.Pooling((2, 2), (2, 2))
     # pool_out_shape = (4, 4, 4)
     fc1_input_size = 784   # np.prod(pool_out_shape)
@@ -46,7 +44,4 @@ if __name__=='__main__':
     test_data = DataLoaders.DataGenerator(10, dataset_test, shuffle=False)
     accuracy = net.test(test_data)
     print('Test Accuracy: {:.4f}'.format(accuracy))
-
-
-
 
