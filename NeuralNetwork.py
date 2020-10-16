@@ -19,7 +19,6 @@ class NeuralNetwork:
         self.layers = []
         self.loss = []
         self.loss_layer = None
-        self.optimizer = None
 
 
     def forward(self, inputs, labels):
